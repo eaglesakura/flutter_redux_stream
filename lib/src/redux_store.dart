@@ -7,6 +7,7 @@ import 'package:rxdart/rxdart.dart';
 
 import 'internal/logger.dart';
 import 'redux_plugin.dart';
+import 'update_redux_state.dart';
 
 part 'dispatcher.dart';
 part 'redux_action.dart';
@@ -82,7 +83,7 @@ class ReduxStore<TState extends ReduxState> {
   TState get state => _state.value;
 
   /// StateをStreamとして取得する.
-  Stream<TState> get stateStream => _state.where((event) => isNotDisposed);
+  Stream<TState> get stream => _state.where((event) => isNotDisposed);
 
   /// Action実行をリクエストする.
   ///
@@ -112,6 +113,22 @@ class ReduxStore<TState extends ReduxState> {
         .first;
     dispatch(action);
     return task;
+  }
+
+  /// 更新関数を直接指定してStateを更新し、更新後のStateを取得する.
+  ///
+  /// [modifier] はStateを受け取り、新しいStateを返却する.
+  Future<TState> dispatchAndResultBy(
+    Stream<TState> Function(TState state) modifier,
+  ) {
+    return dispatchAndResult(UpdateReduxState.all(modifier));
+  }
+
+  /// 更新関数を直接指定してStateを更新する.
+  ///
+  /// [modifier] はStateを受け取り、新しいStateを返却する.
+  void dispatchBy(Stream<TState> Function(TState state) modifier) {
+    dispatch(UpdateReduxState.all(modifier));
   }
 
   /// Storeの終了処理を行う
