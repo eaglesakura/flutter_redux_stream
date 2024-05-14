@@ -30,8 +30,6 @@ class ReduxStore<TState extends ReduxState> {
 
   final BehaviorSubject<TState> _state;
 
-  final _subscription = CompositeSubscription();
-
   final PublishSubject<ReduxStateNotify<TState>> _notifyEvent =
       PublishSubject();
 
@@ -162,7 +160,6 @@ class ReduxStore<TState extends ReduxState> {
       ..clear();
     await _notifyEvent.close();
     await _dispatcher.dispose();
-    await _subscription.dispose();
     await _state.close();
 
     if (_stateDispose != null) {
