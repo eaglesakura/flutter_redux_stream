@@ -3,6 +3,7 @@ import 'dart:developer' as developer;
 
 import 'package:async_notify/async_notify.dart';
 import 'package:flutter/foundation.dart';
+import 'package:meta/meta.dart';
 import 'package:rxdart/rxdart.dart';
 
 import 'internal/logger.dart';

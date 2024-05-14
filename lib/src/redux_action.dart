@@ -8,7 +8,6 @@ part of 'redux_store.dart';
 /// Actionそのものは非同期に行われるが、 1つの`Action.execute()` が終了するまで、
 /// ほかのActionは保留される.
 abstract class ReduxAction<TState extends ReduxState> {
-  // ignore: prefer_final_fields
   var _state = _ActionState.pending;
 
   late ReduxStore<TState> _store;
@@ -20,6 +19,11 @@ abstract class ReduxAction<TState extends ReduxState> {
   @protected
   ReduxStore<TState> get store => _store;
 
+  /// Actionを実行し、新しいStateを返却する.
+  ///
+  /// 非同期で実行され、実行中は複数回のState更新を行える.
+  /// 例えば、非同期処理中に「ロード中」のStateに遷移し、
+  /// 処理完了後に「ロード完了」のStateに遷移するような処理が可能である.
   Stream<TState> execute(TState state);
 
   /// Action内で別なActionを割り込み実行する.

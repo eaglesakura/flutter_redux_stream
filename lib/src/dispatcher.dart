@@ -9,6 +9,7 @@ part of 'redux_store.dart';
 /// 一度execute()が発行されたActionは最後まで実行する権利を得る.
 /// 内部で発生した [CancellationException] のタイミングに寄ってStateが不定になるのを防ぐため、
 /// Actionは必ず正常終了しなければならない.
+@internal
 class Dispatcher<TState extends ReduxState> {
   final Notify _notify;
 
