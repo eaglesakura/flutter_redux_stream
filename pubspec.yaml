@@ -1,9 +1,10 @@
-name: redux_stream
+name: redux_stream2
 description: |
   Redux Architecture for Flutter 3.0+
   'redux_stream' library is Experimental.
-version: 0.4.1+1
-homepage: https://github.com/vivitainc/flutter_redux_stream
+  fork from https://github.com/vivitainc/flutter_redux_stream
+version: 1.0.0+1
+homepage: https://github.com/eaglesakura/flutter_redux_stream
 
 environment:
   sdk: ">=3.0.0 <4.0.0"
@@ -13,10 +14,9 @@ dependencies:
   flutter:
     sdk: flutter
   rxdart: ^0.27.2
-  provider: ^6.0.0
   logger: ^1.0.0
   async_notify: ^0.0.2
-  runtime_assert: ^0.0.1
+  meta: ^1.11.0
 
 dev_dependencies:
   flutter_test:

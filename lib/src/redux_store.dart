@@ -3,7 +3,6 @@ import 'dart:developer' as developer;
 
 import 'package:async_notify/async_notify.dart';
 import 'package:flutter/foundation.dart';
-import 'package:runtime_assert/runtime_assert.dart';
 import 'package:rxdart/rxdart.dart';
 
 import 'internal/logger.dart';
@@ -30,9 +29,6 @@ class ReduxStore<TState extends ReduxState> {
 
   final BehaviorSubject<TState> _state;
 
-  /// レンダリング用に流通量を制限したStream.
-  BehaviorSubject<TState>? _renderState;
-
   final _subscription = CompositeSubscription();
 
   final PublishSubject<ReduxStateNotify<TState>> _notifyEvent =
@@ -52,8 +48,6 @@ class ReduxStore<TState extends ReduxState> {
   /// 破棄済みチェックフラグ
   var _disposed = false;
 
-  final Duration _renderingInterval;
-
   final ReduxStateEquals<TState> _equals;
 
   /// 指定された初期値でReduxStoreを生成する.
@@ -62,14 +56,11 @@ class ReduxStore<TState extends ReduxState> {
     required TState initial,
     ReduxStateDispose<TState>? stateDispose,
     ReduxStateEquals<TState>? equals,
-    Duration renderingInterval = const Duration(milliseconds: 1000 ~/ 60),
   })  : _stateDispose = stateDispose,
         _state = BehaviorSubject.seeded(initial),
-        _renderingInterval = renderingInterval,
         _equals = equals ?? _basicEquals {
     _dispatcher = Dispatcher(_notifier);
     _dispatcher._start(this);
-    _initializeRenderStream(renderingInterval);
   }
 
   /// このStoreが破棄済みであるかどうかを取得する.
@@ -87,24 +78,6 @@ class ReduxStore<TState extends ReduxState> {
   /// この値はEventとして動作するため、Storeに保持されない.
   Stream<ReduxStateNotify<TState>> get notifyEvent => _notifyEvent;
 
-  /// レンダリング用に流通量を制限したStreamを取得する.
-  /// [stateStream] は完全性を保証するが、このStreamはレンダリング用に間引きが行われるため、
-  /// 完全性を保証しない.
-  ///
-  /// 例えばデータが局所的に10000回 / 秒書き込まれた場合、
-  /// データストリームは全ての変更を通知するが、レンダリングストリームは16msに1回（以内)、最新値が通知される.
-  /// 完全なデータ管理には [stateStream] が必要であるが、Widget.build()の発行過多を防ぐためには
-  /// [renderStream] が適切である.
-  ///
-  /// 完全性が必要でなおかつ流通量制限が必要であれば、適宜 [stateStream] を操作する.
-  Stream<TState> get renderStream {
-    final result = _renderState ??= _initializeRenderStream(_renderingInterval);
-    if (result.value != state) {
-      result.add(state);
-    }
-    return result;
-  }
-
   /// 現在のStateを取得する.
   TState get state => _state.value;
 
@@ -115,7 +88,7 @@ class ReduxStore<TState extends ReduxState> {
   ///
   /// この処理はFire & Forgetのため、終了を待ち合わせることはできない.
   void dispatch(ReduxAction<TState> action) {
-    check(isNotDisposed, 'ReduxStore<$TState> is disposed');
+    assert(isNotDisposed, 'ReduxStore<$TState> is disposed');
 
     action._store = this;
     for (final element in _pluginList) {
@@ -131,7 +104,7 @@ class ReduxStore<TState extends ReduxState> {
   /// async funcにすると実行タイミングにズレが生じるため、
   /// 即時実行 + 非同期関数として動作する.
   Future<TState> dispatchAndResult(ReduxAction<TState> action) {
-    check(isNotDisposed, 'ReduxStore<$TState> is disposed');
+    assert(isNotDisposed, 'ReduxStore<$TState> is disposed');
 
     final task = notifyEvent
         .where((event) => identical(event.action, action) && event.done)
@@ -149,7 +122,7 @@ class ReduxStore<TState extends ReduxState> {
   /// その後終了処理が実行される.
   @mustCallSuper
   Future dispose() async {
-    check(isNotDisposed, 'ReduxStore<$TState> is disposed');
+    assert(isNotDisposed, 'ReduxStore<$TState> is disposed');
 
     dispatch(_FinalizeAction());
     _disposed = true;
@@ -173,7 +146,6 @@ class ReduxStore<TState extends ReduxState> {
     await _notifyEvent.close();
     await _dispatcher.dispose();
     await _subscription.dispose();
-    await _renderState?.close();
     await _state.close();
 
     if (_stateDispose != null) {
@@ -219,18 +191,6 @@ class ReduxStore<TState extends ReduxState> {
     final itr = _pluginList.where(test).whereType<TPlugin>();
     assert(itr.isNotEmpty, 'Invalid Plugin<$TPlugin>');
     return itr.first;
-  }
-
-  /// レンダリング用に流通量を制限したStreamを生成する.
-  BehaviorSubject<TState> _initializeRenderStream(Duration renderingInterval) {
-    final result = BehaviorSubject<TState>.seeded(state);
-    _subscription.add(
-      Stream.periodic(
-        renderingInterval,
-        (computationCount) => state,
-      ).distinct().where((event) => isNotDisposed).listen(result.add),
-    );
-    return result;
   }
 
   /// 新しいデータをStoreに反映させる

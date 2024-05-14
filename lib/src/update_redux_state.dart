@@ -1,8 +1,11 @@
+import 'package:meta/meta.dart';
+
 import 'redux_store.dart';
 
 /// Modifierにより、簡易的なActionを実現する.
 ///
 /// 何かしら簡易的な逐次実行処理を行いたい場合に使用する.
+@internal
 class UpdateReduxState<TState extends ReduxState, TProperty, TModifiedProperty>
     extends ReduxAction<TState> {
   /// 表示名オプション

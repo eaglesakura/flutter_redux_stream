@@ -1,5 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:redux_stream/redux_stream.dart';
+import 'package:redux_stream2/redux_stream2.dart';
 
 void main() {
   test('new/dispose', () async {

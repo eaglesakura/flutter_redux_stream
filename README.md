@@ -1,6 +1,6 @@
 redux_stream
 
-[![Github Actions](https://github.com/vivitainc/flutter_redux_stream/actions/workflows/flutter-package-test.yaml/badge.svg)](https://github.com/vivitainc/flutter_redux_stream/actions/workflows/flutter-package-test.yaml)
+[![Github Actions](https://github.com/eaglesakura/flutter_redux_stream/actions/workflows/flutter-package-test.yaml/badge.svg)](https://github.com/eaglesakura/flutter_redux_stream/actions/workflows/flutter-package-test.yaml)
 
 ## Features
 

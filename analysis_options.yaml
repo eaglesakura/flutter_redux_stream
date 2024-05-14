@@ -64,7 +64,6 @@ linter:
     - avoid_unnecessary_containers
     - avoid_returning_this
     - avoid_returning_null_for_void
-    - avoid_returning_null
     - camel_case_extensions
     - flutter_style_todos
     - file_names
