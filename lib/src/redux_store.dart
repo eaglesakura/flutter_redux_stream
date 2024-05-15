@@ -244,8 +244,8 @@ class ReduxStore<TState extends ReduxState> {
   }
 
   static bool _basicEquals<TState>(TState before, TState after) {
-    if (kReleaseMode) {
-      // デバッグビルドの場合、前後比較にかかる時間をチェックし、
+    if (kProfileMode) {
+      // Profileモードビルドの場合、前後比較にかかる時間をチェックし、
       // 異常な時間が発生している場合は警告を出す
       final watch = Stopwatch()..start();
       try {
