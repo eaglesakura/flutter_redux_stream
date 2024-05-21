@@ -43,5 +43,9 @@ void logError(
   dynamic e,
   StackTrace? stackTrace,
 ) {
-  _infoLogger.e('$_tag $message', e, stackTrace);
+  _infoLogger.e(
+    '$_tag $message',
+    error: e,
+    stackTrace: stackTrace,
+  );
 }
